@@ -1,6 +1,6 @@
 from flask import Flask
-import threading
-import bot  # Импортирует твой файл bot.py
+import asyncio
+from bot import main
 
 app = Flask(__name__)
 
@@ -8,5 +8,7 @@ app = Flask(__name__)
 def index():
     return "Bot is running!", 200
 
-# Запускает бота в фоне
-threading.Thread(target=bot.main).start()
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    loop.create_task(main())  # запускаем бота как корутину
+    app.run(host="0.0.0.0", port=10000)
