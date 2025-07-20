@@ -1,6 +1,6 @@
 from flask import Flask
 import threading
-import bot  # Импорт файла bot.py
+import bot  # Импортирует твой файл bot.py
 
 app = Flask(__name__)
 
@@ -8,5 +8,5 @@ app = Flask(__name__)
 def index():
     return "Bot is running!", 200
 
-# Запуск бота в отдельном потоке
+# Запускает бота в фоне
 threading.Thread(target=bot.main).start()
