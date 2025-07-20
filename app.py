@@ -1,17 +1,27 @@
-from flask import Flask
-import asyncio
-import threading
-from bot import main as telegram_main
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
+import os
+import logging
 
-app = Flask(__name__)
+logging.basicConfig(level=logging.INFO)
 
-@app.route("/")
-def home():
-    return "🤖 Бот работает!"
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Привет! Отправь мне аудио или голосовое сообщение 🎧")
 
-def run_bot():
-    asyncio.run(telegram_main())
+async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("🎤 Голосовое получено! (Обработка будет позже)")
+
+async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("🔊 Аудиофайл получен! (Обработка будет позже)")
+
+async def main():
+    token = os.getenv("BOT_TOKEN")
+    app = ApplicationBuilder().token(token).build()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(MessageHandler(filters.VOICE, handle_voice))
+    app.add_handler(MessageHandler(filters.AUDIO, handle_audio))
+    await app.run_polling()
 
 if __name__ == "__main__":
-    threading.Thread(target=run_bot).start()
-    app.run(host="0.0.0.0", port=10000)
+    import asyncio
+    asyncio.run(main())
