@@ -1,0 +1,8 @@
+Flask
+python-telegram-bot==20.3
+openai
+pydub
+moviepy
+torch
+whisper
+tiktoken
