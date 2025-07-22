@@ -10,6 +10,7 @@ WORKDIR /app
 # Копируем зависимости и код
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install pydub==0.24.1
 
 COPY . .
 
