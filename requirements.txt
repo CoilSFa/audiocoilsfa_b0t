@@ -2,6 +2,6 @@ python-telegram-bot==20.8
 fastapi
 uvicorn
 openai
-pydub
+pydub==0.24.1
 fpdf
 python-dotenv
