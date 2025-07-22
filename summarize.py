@@ -1,16 +1,38 @@
+import os
 import openai
-from config import OPENAI_API_KEY
+import wave
+import math
 
-openai.api_key = OPENAI_API_KEY
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
-def summarize_text(text: str) -> str:
-    prompt = (
-        "Выдели ключевые темы и кратко поясни их для следующего текста:\n\n"
-        f"{text}\n\nОтвет:"
+def split_audio(path, chunk_length_ms=30000):
+    audio = AudioSegment.from_wav(path)
+    chunks = [audio[i:i+chunk_length_ms] for i in range(0, len(audio), chunk_length_ms)]
+    chunk_paths = []
+    for i, chunk in enumerate(chunks):
+        chunk_path = f"{path}_chunk{i}.wav"
+        chunk.export(chunk_path, format="wav")
+        chunk_paths.append(chunk_path)
+    return chunk_paths
+
+def transcribe_and_summarize(path: str) -> str:
+    from pydub import AudioSegment
+    chunk_paths = split_audio(path)
+    full_text = ""
+
+    for chunk_path in chunk_paths:
+        with open(chunk_path, "rb") as audio_file:
+            transcript = openai.audio.transcriptions.create(
+                model="whisper-1",
+                file=audio_file
+            )
+            full_text += transcript.text + "\n"
+        os.remove(chunk_path)
+
+    # Сжатие текста
+    summary = openai.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": f"Сделай краткое содержание следующего текста:\n\n{full_text}"}],
+        max_tokens=800
     )
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=500
-    )
-    return response.choices[0].message["content"]
+    return summary.choices[0].message.content.strip()
