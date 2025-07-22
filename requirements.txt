@@ -1,6 +1,5 @@
-python-telegram-bot==20.3
-python-dotenv
 fastapi
 uvicorn
-whisper
-torch
+python-telegram-bot==20.8
+openai
+pydub
