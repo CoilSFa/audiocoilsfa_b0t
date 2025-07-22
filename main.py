@@ -6,22 +6,21 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Привет! Отправь мне аудио или голосовое сообщение 🎧")
+    await update.message.reply_text("👋 Привет! Отправь мне голосовое или аудиофайл — я его расшифрую.")
 
 async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("🎤 Голосовое получено! (Обработка будет позже)")
+    await update.message.reply_text("🎤 Голосовое получено! (Обработка будет добавлена позже)")
 
 async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("🔊 Аудиофайл получен! (Обработка будет позже)")
-
-async def main():
-    token = os.getenv("BOT_TOKEN")
-    app = ApplicationBuilder().token(token).build()
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.VOICE, handle_voice))
-    app.add_handler(MessageHandler(filters.AUDIO, handle_audio))
-    await app.run_polling()
+    await update.message.reply_text("🎧 Аудиофайл получен! (Обработка будет добавлена позже)")
 
 if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main())
+    token = os.environ.get("BOT_TOKEN")
+
+    application = ApplicationBuilder().token(token).build()
+
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(MessageHandler(filters.VOICE, handle_voice))
+    application.add_handler(MessageHandler(filters.AUDIO, handle_audio))
+
+    application.run_polling()  # без asyncio.run
