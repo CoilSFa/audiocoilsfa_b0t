@@ -1,21 +1,22 @@
 # Используем официальный образ Python 3.10
 FROM python:3.10-slim
 
-# Устанавливаем ffmpeg — он нужен для работы pydub
+# Устанавливаем необходимые системные зависимости
 RUN apt-get update && apt-get install -y ffmpeg && apt-get clean
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем зависимости и код
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install pydub==0.24.1
-
+# Копируем все файлы проекта
 COPY . .
 
-# Указываем порт (Render по умолчанию использует PORT из env)
-ENV PORT=10000
+# Устанавливаем зависимости проекта
+RUN pip install --no-cache-dir --upgrade pip \
+ && pip install --no-cache-dir -r requirements.txt \
+ && pip install --no-cache-dir pydub==0.24.1
 
-# Запускаем FastAPI через uvicorn
+# Устанавливаем переменные окружения
+ENV PYTHONUNBUFFERED=1
+
+# Указываем команду запуска
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "10000"]
