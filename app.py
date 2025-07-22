@@ -1,28 +1,30 @@
+import os
 from fastapi import FastAPI, Request
 from telegram import Update
 from telegram.ext import Application, ApplicationBuilder
-import os
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-WEBHOOK_URL = os.getenv("WEBHOOK_URL")
+WEBHOOK_URL = os.getenv("WEBHOOK_URL")  # Пример: https://audiocoilsfa-b0t.onrender.com/webhook
 
 app = FastAPI()
 
-application = ApplicationBuilder().token(BOT_TOKEN).build()
+application: Application = ApplicationBuilder().token(BOT_TOKEN).build()
 
-# 🔽 Тут будут хендлеры, например:
-# application.add_handler(...)
-
-# ✅ Добавляем запуск вебхука на старте
 @app.on_event("startup")
-async def on_startup():
+async def startup():
+    await application.initialize()  # 🔥 Обязательно!
     await application.bot.delete_webhook()
     await application.bot.set_webhook(url=WEBHOOK_URL)
+    print("✅ Webhook установлен!")
 
-# ✅ Приём обновлений от Telegram
+@app.on_event("shutdown")
+async def shutdown():
+    await application.shutdown()
+
 @app.post("/webhook")
-async def webhook(req: Request):
-    data = await req.json()
+async def process_webhook(request: Request):
+    data = await request.json()
     update = Update.de_json(data, application.bot)
     await application.process_update(update)
     return {"ok": True}
+
