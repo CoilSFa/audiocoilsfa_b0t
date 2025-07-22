@@ -1,3 +1,4 @@
+from pydub import AudioSegment  # ← ВАЖНО
 import os
 import openai
 import wave
@@ -16,7 +17,6 @@ def split_audio(path, chunk_length_ms=30000):
     return chunk_paths
 
 def transcribe_and_summarize(path: str) -> str:
-    from pydub import AudioSegment
     chunk_paths = split_audio(path)
     full_text = ""
 
