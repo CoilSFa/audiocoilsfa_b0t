@@ -40,8 +40,9 @@ async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
         os.remove(pdf_path)
 
     except Exception as e:
-        await update.message.reply_text("⚠️ Произошла ошибка при обработке. Попробуйте снова.")
-        print(f"[ERROR] {e}")
+    await update.message.reply_text("⚠️ Произошла ошибка при обработке. Попробуйте снова.")
+    print("[ERROR]", e)
+    traceback.print_exc()
 
 # Регистрация обработчиков
 application.add_handler(CommandHandler("start", start))
