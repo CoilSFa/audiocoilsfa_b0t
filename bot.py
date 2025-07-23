@@ -6,6 +6,10 @@ from dotenv import load_dotenv
 from utils import convert_to_wav
 from summarize import transcribe_and_summarize
 from pdf_generator import generate_pdf
+import logging
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 load_dotenv()
 TOKEN = os.getenv("TELEGRAM_TOKEN")
