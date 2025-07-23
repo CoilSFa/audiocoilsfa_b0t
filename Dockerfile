@@ -3,14 +3,14 @@ FROM python:3.10-slim
 
 # Устанавливаем системные зависимости (включая unzip, ffmpeg и wget)
 RUN apt-get update && \
-    apt-get install -y ffmpeg wget tar && \
+    apt-get install -y ffmpeg curl tar && \
     apt-get clean
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
 # Скачиваем FreeSans.ttf и помещаем в рабочую директорию
-RUN wget https://ftp.gnu.org/gnu/freefont/freefont-ttf-20120503.tar.gz && \
+RUN curl https://ftp.gnu.org/gnu/freefont/freefont-ttf-20120503.tar.gz && \
     tar -xzf freefont-ttf-20120503.tar.gz && \
     cp freefont-ttf-20120503/FreeSans.ttf /app && \
     rm -rf freefont-ttf-20120503.tar.gz freefont-ttf-20120503
