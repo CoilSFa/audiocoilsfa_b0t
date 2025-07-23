@@ -16,7 +16,7 @@ COPY . /app
 # Скачиваем FreeSans.ttf (с поддержкой Unicode)
 RUN curl -L -o /app/freefont.zip https://ftp.gnu.org/gnu/freefont/freefont-ttf-20120503.zip && \
     unzip /app/freefont.zip -d /app/fonts && \
-    cp /app/fonts/freefont-ttf-20120503/FreeSans.ttf /app/FreeSans.ttf && \
+    cp /app/fonts/freefont-20120503/FreeSans.ttf /app/FreeSans.ttf && \
     rm -rf /app/freefont.zip /app/fonts
 
 # Устанавливаем зависимости Python
