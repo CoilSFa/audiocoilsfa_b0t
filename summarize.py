@@ -18,29 +18,27 @@ def split_audio(path, chunk_length_ms=30000):
     return chunk_paths
 
 
-def transcribe_and_summarize(path: str) -> str:
+def transcribe_and_summarize(path: str) -> tuple[str, str]:
+    from pydub import AudioSegment
     chunk_paths = split_audio(path)
     full_text = ""
 
-    try:
-        for chunk_path in chunk_paths:
-            with open(chunk_path, "rb") as audio_file:
-                transcript = openai.audio.transcriptions.create(
-                    model="whisper-1",
-                    file=audio_file
-                )
-                full_text += transcript.text + "\n"
-            os.remove(chunk_path)
+    for chunk_path in chunk_paths:
+        with open(chunk_path, "rb") as audio_file:
+            transcript = openai.audio.transcriptions.create(
+                model="whisper-1",
+                file=audio_file
+            )
+            full_text += transcript.text + "\n"
+        os.remove(chunk_path)
 
-        summary = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "user", "content": f"Сделай краткое содержание следующего текста:\n\n{full_text}"}
-            ],
-            max_tokens=800
-        )
+    summary = openai.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": f"Сделай краткое содержание следующего текста:\n\n{full_text}"}],
+        max_tokens=800
+    )
+    return full_text.strip(), summary.choices[0].message.content.strip()
 
-        return summary.choices[0].message.content.strip()
 
     except openai.OpenAIError as e:
         # Проверка ошибки недостаточной квоты
