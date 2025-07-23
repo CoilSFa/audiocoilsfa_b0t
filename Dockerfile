@@ -10,10 +10,11 @@ RUN apt-get update && \
 WORKDIR /app
 
 # Скачиваем FreeSans.ttf и помещаем в рабочую директорию
-RUN curl -L -o freefont.tar.gz https://ftp.gnu.org/gnu/freefont/freefont-ttf-20120503.tar.gz && \
-    tar -xzf freefont.tar.gz && \
+RUN apt-get update && apt-get install -y unzip curl && \
+    curl -L -o freefont.zip https://ftp.gnu.org/gnu/freefont/freefont-ttf-20120503.zip && \
+    unzip freefont.zip && \
     cp freefont-ttf-20120503/FreeSans.ttf /app/FreeSans.ttf && \
-    rm -rf freefont.tar.gz freefont-ttf-20120503
+    rm -rf freefont.zip freefont-ttf-20120503
 
 # Копируем все файлы проекта
 COPY . .
