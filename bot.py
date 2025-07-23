@@ -19,9 +19,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("👋 Привет! Отправь голосовое сообщение, и я пришлю его расшифровку и краткое содержание.")
 
 async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    print("🟢 handle_audio STARTED")  # <-- если ты не видишь это в логах — он не вызывается
+    print("🟢 handle_audio STARTED")
     try:
         logger.info("📩 Получено сообщение от пользователя")
+
+        if not update.message or not update.message.voice:
+            logger.warning("⚠️ Сообщение не содержит голосового файла.")
+            await update.message.reply_text("⚠️ Пожалуйста, отправьте голосовое сообщение.")
+            return
 
         file = await update.message.voice.get_file()
         ogg_path = f"temp_{file.file_unique_id}.ogg"
@@ -41,12 +46,12 @@ async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             f"📝 Краткое содержание:\n{summary_text}\n\n📄 PDF с полным текстом прилагается."
         )
-
         await update.message.reply_document(document=pdf_path)
 
     except Exception as e:
         logger.exception("❌ Ошибка при обработке голосового сообщения:")
         await update.message.reply_text("⚠️ Произошла ошибка при обработке. Попробуйте снова.")
+
 
 application.add_handler(CommandHandler("start", start))
 application.add_handler(MessageHandler(filters.VOICE | filters.AUDIO, handle_audio))
