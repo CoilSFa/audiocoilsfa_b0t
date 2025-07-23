@@ -1,16 +1,18 @@
-from flask import Flask
-import threading
-import bot
+from fastapi import FastAPI, Request
+from bot import application
+import logging
 
-app = Flask(__name__)
+app = FastAPI()
 
-threading.Thread(target=bot.main).start()
+@app.get("/")
+async def root():
+    return {"status": "Bot is running!"}
 
-@app.route("/")
-def home():
-    return "Bot is running!", 200
-
-if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 8000))
-    app.run(host="0.0.0.0", port=port)
+@app.post("/webhook")
+async def webhook(request: Request):
+    try:
+        update_data = await request.json()
+        await application.process_update(update_data)
+    except Exception as e:
+        logging.exception(f"Ошибка при обработке вебхука: {e}")
+    return {"ok": True}
