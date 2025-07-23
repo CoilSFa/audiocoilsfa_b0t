@@ -1,3 +1,4 @@
+import traceback
 from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, CommandHandler, ContextTypes, filters
 from dotenv import load_dotenv
