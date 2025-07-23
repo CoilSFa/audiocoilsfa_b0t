@@ -5,8 +5,8 @@ import os
 def generate_pdf(text: str) -> str:
     pdf = FPDF()
     pdf.add_page()
-    pdf.add_font('FreeSans', '', 'FreeSans.ttf', uni=True)
-    pdf.set_font('FreeSans', size=12)
+    pdf.add_font("LibertinusSans", "", "FreeSans.ttf", uni=True)
+    pdf.set_font("LibertinusSans", size=12)
 
     for line in text.split("\n"):
         pdf.multi_cell(0, 10, line)
