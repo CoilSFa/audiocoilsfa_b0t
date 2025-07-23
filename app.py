@@ -1,34 +1,24 @@
-import logging
 from fastapi import FastAPI, Request
 from telegram import Update
-from bot import application  # Объект telegram.Application
+from bot import application
+import logging
 
-# Логирование
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Инициализация FastAPI
 app = FastAPI()
 
-# ✅ Инициализация Telegram Application при запуске сервера
-@app.on_event("startup")
-async def startup_event():
-    await application.initialize()
-    logger.info("✅ Telegram Application инициализировано")
-
-# 🌐 Простой healthcheck
 @app.get("/")
 async def root():
-    return {"status": "ok"}
+    return {"message": "Bot is running"}
 
-# 📬 Webhook для Telegram
 @app.post("/webhook")
-async def telegram_webhook(request: Request):
+async def webhook(request: Request):
     try:
-        data = await request.json()
-        update = Update.de_json(data, application.bot)
+        update_data = await request.json()
+        update = Update.de_json(update_data, application.bot)
         await application.process_update(update)
         return {"status": "ok"}
     except Exception as e:
-        logger.exception(f"❌ Ошибка при обработке вебхука: {e}")
-        return {"status": "error", "detail": str(e)}
+        logger.exception("Ошибка при обработке вебхука:")
+        return {"status": "error", "message": str(e)}
