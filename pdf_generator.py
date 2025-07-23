@@ -1,12 +1,10 @@
 from fpdf import FPDF
 import uuid
-import os
 
 def generate_pdf(text: str) -> str:
     pdf = FPDF()
     pdf.add_page()
-    pdf.add_font("LibertinusSans", "", "FreeSans.ttf", uni=True)
-    pdf.set_font("LibertinusSans", size=12)
+    pdf.set_font("Arial", size=12)  # Без add_font, Arial встроен
 
     for line in text.split("\n"):
         pdf.multi_cell(0, 10, line)
