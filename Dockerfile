@@ -1,22 +1,30 @@
 # Используем официальный образ Python 3.10
 FROM python:3.10-slim
 
-# Устанавливаем необходимые системные зависимости
-RUN apt-get update && apt-get install -y ffmpeg && apt-get clean
+# Устанавливаем системные зависимости (включая unzip, ffmpeg и wget)
+RUN apt-get update && \
+    apt-get install -y ffmpeg wget tar && \
+    apt-get clean
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
+# Скачиваем FreeSans.ttf и помещаем в рабочую директорию
+RUN wget https://ftp.gnu.org/gnu/freefont/freefont-ttf-20120503.tar.gz && \
+    tar -xzf freefont-ttf-20120503.tar.gz && \
+    cp freefont-ttf-20120503/FreeSans.ttf /app && \
+    rm -rf freefont-ttf-20120503.tar.gz freefont-ttf-20120503
+
 # Копируем все файлы проекта
 COPY . .
 
-# Устанавливаем зависимости проекта
-RUN pip install --no-cache-dir --upgrade pip \
- && pip install --no-cache-dir -r requirements.txt \
- && pip install --no-cache-dir pydub==0.24.1
+# Устанавливаем зависимости
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir pydub==0.24.1
 
 # Устанавливаем переменные окружения
 ENV PYTHONUNBUFFERED=1
 
-# Указываем команду запуска
+# Команда запуска приложения
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "10000"]
