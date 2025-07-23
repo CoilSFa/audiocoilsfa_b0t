@@ -8,17 +8,22 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
-@app.get("/")
-async def root():
-    return {"message": "Bot is running"}
-
 @app.post("/webhook")
 async def webhook(request: Request):
     try:
-        update_data = await request.json()
-        update = Update.de_json(update_data, application.bot)
+        data = await request.json()
+        update = Update.de_json(data, application.bot)
+        
+        # 🔧 Обязательная инициализация
+        if not application.ready:
+            await application.initialize()
+
         await application.process_update(update)
-        return {"status": "ok"}
+        return {"ok": True}
     except Exception as e:
         logger.exception("Ошибка при обработке вебхука:")
-        return {"status": "error", "message": str(e)}
+        return {"ok": False, "error": str(e)}
+
+@app.get("/")
+async def root():
+    return {"status": "ok"}
