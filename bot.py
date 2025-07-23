@@ -29,11 +29,8 @@ async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
         summary_text, full_text = transcribe_and_summarize(wav_path)
         print(f"[INFO] Получено summary: {summary_text[:60]}...")
 
-        await update.message.reply_text(f"📝 Краткое содержание:
-
-{summary_text}")
-
-        pdf_path = generate_pdf(full_text)
+        await update.message.reply_text(f"📝 Краткое содержание:{summary_text}")
+            pdf_path = generate_pdf(full_text)
         await update.message.reply_document(document=open(pdf_path, "rb"), filename="transcription.pdf")
 
         os.remove(file_path)
