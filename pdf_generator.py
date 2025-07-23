@@ -1,18 +1,14 @@
 from fpdf import FPDF
 import uuid
 
-def generate_pdf(summary: str, full_text: str) -> str:
+def generate_pdf(text: str) -> str:
     pdf = FPDF()
-    pdf.add_font("DejaVu", "", "DejaVuSans.ttf", uni=True)
-    pdf.set_font("DejaVu", size=12)
     pdf.add_page()
+    pdf.set_font("Arial", size=12)
 
-    pdf.multi_cell(0, 10, "📝 Краткое содержание:\n", ln=True)
-    pdf.multi_cell(0, 10, summary + "\n\n")
+    for line in text.split("\n"):
+        pdf.multi_cell(0, 10, line)
 
-    pdf.multi_cell(0, 10, "📜 Полная расшифровка:\n", ln=True)
-    pdf.multi_cell(0, 10, full_text)
-
-    filename = f"transcript_summary_{uuid.uuid4().hex}.pdf"
+    filename = f"transcription_{uuid.uuid4().hex}.pdf"
     pdf.output(filename)
     return filename
