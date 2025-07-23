@@ -3,5 +3,5 @@ fastapi
 uvicorn
 openai
 pydub==0.24.1
-fpdf
+fpdf==1.7.2
 python-dotenv
