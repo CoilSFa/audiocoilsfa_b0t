@@ -19,6 +19,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("👋 Привет! Отправь голосовое сообщение, и я пришлю его расшифровку и краткое содержание.")
 
 async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    print("🟢 handle_audio STARTED")  # <-- если ты не видишь это в логах — он не вызывается
     try:
         logger.info("📩 Получено сообщение от пользователя")
 
