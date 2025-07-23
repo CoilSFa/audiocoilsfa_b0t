@@ -16,31 +16,32 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
-        print("[INFO] Получено сообщение от пользователя")
+        logger.info("📩 Получено сообщение от пользователя")
 
-        file = await update.message.audio.get_file() if update.message.audio else await update.message.voice.get_file()
-        file_path = f"temp_{file.file_unique_id}.ogg"
-        await file.download_to_drive(file_path)
-        print(f"[INFO] Файл сохранён: {file_path}")
+        file = await update.message.voice.get_file()
+        ogg_path = f"temp_{file.file_unique_id}.ogg"
+        await file.download_to_drive(ogg_path)
+        logger.info(f"💾 Файл сохранён: {ogg_path}")
 
-        wav_path = convert_to_wav(file_path)
-        print(f"[INFO] Конвертирован в: {wav_path}")
+        wav_path = convert_to_wav(ogg_path)
+        logger.info(f"🎵 Конвертирован в: {wav_path}")
 
-        summary_text, full_text = transcribe_and_summarize(wav_path)
-        print(f"[INFO] Получено summary: {summary_text[:60]}...")
+        full_text, summary_text = transcribe_and_summarize(wav_path)
 
-        await update.message.reply_text(f"📝 Краткое содержание:{summary_text}")
-            pdf_path = generate_pdf(full_text)
-        await update.message.reply_document(document=open(pdf_path, "rb"), filename="transcription.pdf")
+        logger.info(f"📄 Получен полный текст: {full_text}")
+        logger.info(f"📝 Получен summary: {summary_text}")
 
-        os.remove(file_path)
-        os.remove(wav_path)
-        os.remove(pdf_path)
+        pdf_path = generate_pdf(full_text)
+
+        await update.message.reply_text(
+            f"📝 Краткое содержание:\n{summary_text}\n\n📄 PDF с полным текстом прилагается."
+        )
+
+        await update.message.reply_document(document=pdf_path)
 
     except Exception as e:
+        logger.error(f"[ERROR] {e}")
         await update.message.reply_text("⚠️ Произошла ошибка при обработке. Попробуйте снова.")
-        print(f"[ERROR] {e}")
-        traceback.print_exc()
 
 application.add_handler(CommandHandler("start", start))
 application.add_handler(MessageHandler(filters.VOICE | filters.AUDIO, handle_audio))
