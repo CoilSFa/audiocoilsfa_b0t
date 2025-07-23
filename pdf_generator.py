@@ -7,8 +7,8 @@ def generate_pdf(text: str) -> str:
     pdf.add_page()
 
     font_path = os.path.join(os.path.dirname(__file__), "FreeSans.ttf")
-    pdf.add_font("FreeSans", "", font_path, uni=True)
-    pdf.set_font("FreeSans", size=12)
+    pdf.add_font("DejaVu", "", "DejaVuSans.ttf", uni=True)
+    pdf.set_font("DejaVu", size=12)
 
     for line in text.split("\n"):
         pdf.multi_cell(0, 10, line)
