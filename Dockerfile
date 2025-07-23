@@ -1,31 +1,26 @@
-# Используем официальный образ Python 3.10
+# Используем официальный образ Python
 FROM python:3.10-slim
 
-# Устанавливаем системные зависимости (включая unzip, ffmpeg и wget)
-RUN apt-get update && \
-    apt-get install -y ffmpeg curl tar && \
-    apt-get clean
+# Устанавливаем зависимости системы
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Скачиваем FreeSans.ttf и помещаем в рабочую директорию
-RUN apt-get update && apt-get install -y unzip curl && \
-    curl -L -o freefont.zip https://ftp.gnu.org/gnu/freefont/freefont-20120503.zip && \
-    unzip freefont.zip && \
-    cp freefont-20120503/FreeSans.ttf /app/FreeSans.ttf && \
-    rm -rf freefont.zip freefont-20120503
+# Копируем файлы проекта
+COPY . /app
 
-# Копируем все файлы проекта
-COPY . .
+# Скачиваем Unicode-совместимый шрифт
+RUN curl -L -o /app/FreeSans.ttf https://github.com/alerque/libertinus/releases/download/v7.040/LibertinusSans-Regular.otf
 
-# Устанавливаем зависимости
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir pydub==0.24.1
+# Устанавливаем зависимости Python
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Устанавливаем переменные окружения
-ENV PYTHONUNBUFFERED=1
+# Открываем порт (если нужно для Render)
+EXPOSE 10000
 
-# Команда запуска приложения
+# Стартовая команда
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "10000"]
