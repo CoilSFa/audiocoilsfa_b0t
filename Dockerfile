@@ -4,9 +4,8 @@ FROM python:3.10-slim
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     curl \
-    unzip \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
+    tar \
+ && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Установка Python-зависимостей
 COPY requirements.txt .
@@ -16,11 +15,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 WORKDIR /app
 COPY . .
 
-# ⬇️ Загрузка FreeSans.ttf во время сборки
-RUN curl -L -o freefont.zip https://ftp.gnu.org/gnu/freefont/freefont-20120503.zip && \
-    unzip freefont.zip -d fonts && \
-    cp fonts/freefont-20120503/FreeSans.ttf /app/FreeSans.ttf && \
-    rm -rf freefont.zip fonts
+# ⬇️ Загрузка FreeSans.ttf из tar.gz (рабочий источник)
+RUN curl -L -o freefont.tar.gz https://ftp.gnu.org/gnu/freefont/freefont-ttf-20120503.tar.gz && \
+    tar -xzf freefont.tar.gz && \
+    cp freefont-ttf-20120503/FreeSans.ttf /app/FreeSans.ttf && \
+    rm -rf freefont.tar.gz freefont-ttf-20120503
 
-# Запуск приложения
+# Запуск
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
