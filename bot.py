@@ -23,34 +23,55 @@ async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         logger.info("📩 Получено сообщение от пользователя")
 
-        if not update.message or not update.message.voice:
-            logger.warning("⚠️ Сообщение не содержит голосового файла.")
-            await update.message.reply_text("⚠️ Пожалуйста, отправьте голосовое сообщение.")
+        # Определяем, какой тип аудио был прислан
+        if update.message.voice:
+            file = await update.message.voice.get_file()
+            file_id = update.message.voice.file_unique_id
+            extension = "ogg"
+
+        elif update.message.audio:
+            file = await update.message.audio.get_file()
+            file_id = update.message.audio.file_unique_id
+            extension = "mp3"
+
+        elif update.message.document and update.message.document.mime_type.startswith("audio/"):
+            file = await update.message.document.get_file()
+            file_id = update.message.document.file_unique_id
+            extension = update.message.document.file_name.split(".")[-1]  # .mp3, .m4a и т.д.
+
+        else:
+            logger.warning("⚠️ Сообщение не содержит поддерживаемого аудиофайла.")
+            await update.message.reply_text("⚠️ Пожалуйста, отправьте аудиофайл (голосовое, .mp3, .m4a, .ogg).")
             return
 
-        file = await update.message.voice.get_file()
-        ogg_path = f"temp_{file.file_unique_id}.ogg"
-        await file.download_to_drive(ogg_path)
-        logger.info(f"💾 Файл сохранён: {ogg_path}")
+        # Сохраняем файл
+        input_path = f"temp_{file_id}.{extension}"
+        await file.download_to_drive(input_path)
+        logger.info(f"💾 Файл сохранён: {input_path}")
 
-        wav_path = convert_to_wav(ogg_path)
+        # Конвертация в WAV
+        wav_path = convert_to_wav(input_path)
         logger.info(f"🎵 Конвертирован в: {wav_path}")
 
+        # Расшифровка и суммаризация
         full_text, summary_text = transcribe_and_summarize(wav_path)
 
         logger.info(f"📄 Получен полный текст: {full_text}")
         logger.info(f"📝 Получен summary: {summary_text}")
 
+        # PDF генерация
         pdf_path = generate_pdf(full_text)
 
+        # Ответ пользователю
         await update.message.reply_text(
             f"📝 Краткое содержание:\n{summary_text}\n\n📄 PDF с полным текстом прилагается."
         )
         await update.message.reply_document(document=pdf_path)
 
     except Exception as e:
-        logger.exception("❌ Ошибка при обработке голосового сообщения:")
+        logger.exception("❌ Ошибка при обработке аудио:")
         await update.message.reply_text("⚠️ Произошла ошибка при обработке. Попробуйте снова.")
+
 
 
 application.add_handler(CommandHandler("start", start))
