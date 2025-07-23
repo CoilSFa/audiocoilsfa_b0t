@@ -20,27 +20,31 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         print("[INFO] Получено сообщение от пользователя")
-
         file = await update.message.audio.get_file() if update.message.audio else await update.message.voice.get_file()
         file_path = f"temp_{file.file_unique_id}.ogg"
         await file.download_to_drive(file_path)
-        print("[INFO] Файл сохранён:", file_path)
+        print(f"[INFO] Файл сохранён: {file_path}")
 
         wav_path = convert_to_wav(file_path)
-        print("[INFO] Конвертирован в:", wav_path)
+        print(f"[INFO] Конвертирован в: {wav_path}")
 
-        summary_text = transcribe_and_summarize(wav_path)
-        print("[INFO] Получено summary:", summary_text[:100])
+        full_text, summary_text = transcribe_and_summarize(wav_path)
+        print(f"[INFO] Получено summary: {summary_text}")
 
-        pdf_path = generate_pdf(summary_text)
-        print("[INFO] PDF сгенерирован:", pdf_path)
+        # Отправляем краткое содержание как сообщение
+        await update.message.reply_text(f"📝 Краткое содержание:\n\n{summary_text}")
 
-        await update.message.reply_document(document=open(pdf_path, "rb"), filename="summary.pdf")
+        # Генерируем PDF с расшифровкой и summary
+        pdf_path = generate_pdf(summary_text, full_text)
+        await update.message.reply_document(document=open(pdf_path, "rb"), filename="transcript_summary.pdf")
 
         os.remove(file_path)
         os.remove(wav_path)
         os.remove(pdf_path)
-        print("[INFO] Временные файлы удалены")
+    except Exception as e:
+        print(f"[ERROR] {e}")
+        await update.message.reply_text("⚠️ Произошла ошибка при обработке. Попробуйте снова.")
+
 
     except Exception as e:
         await update.message.reply_text("⚠️ Произошла ошибка при обработке. Попробуйте снова.")
