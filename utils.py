@@ -1,5 +1,4 @@
 from pydub import AudioSegment
-import os
 
 def convert_to_wav(path: str) -> str:
     output_path = path.replace(".ogg", ".wav")
