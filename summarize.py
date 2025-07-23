@@ -12,12 +12,11 @@ def split_audio(path, chunk_length_ms=30000):
         chunk_path = f"{path}_chunk{i}.wav"
         chunk.export(chunk_path, format="wav")
         chunk_paths.append(chunk_path)
+    print(f"[INFO] Аудио разделено на {len(chunk_paths)} фрагментов")
     return chunk_paths
 
-def transcribe_and_summarize(path: str) -> tuple[str, str]:
+def transcribe_and_summarize(path: str):
     chunk_paths = split_audio(path)
-    print(f"[INFO] Аудио разделено на {len(chunk_paths)} фрагментов")
-
     full_text = ""
     for chunk_path in chunk_paths:
         with open(chunk_path, "rb") as audio_file:
@@ -33,4 +32,4 @@ def transcribe_and_summarize(path: str) -> tuple[str, str]:
         messages=[{"role": "user", "content": f"Сделай краткое содержание следующего текста:\n\n{full_text}"}],
         max_tokens=800
     )
-    return summary.choices[0].message.content.strip(), full_text
+    return full_text.strip(), summary.choices[0].message.content.strip()
